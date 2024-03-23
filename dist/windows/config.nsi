@@ -11,6 +11,9 @@ XPStyle on
 ;Uncomment when packaging 64bit qbittorrent
 ;!define APP64BIT
 
+;Uncomment when packaging qbittorrent with Qt6
+;!define APPQT6
+
 !include "MUI.nsh"
 !include "UAC.nsh"
 !include "FileFunc.nsh"
@@ -28,24 +31,30 @@ XPStyle on
 !define CSIDL_LOCALAPPDATA '0x1C' ;Local Application Data path
 
 ; Program specific
-!define PROG_VERSION "4.4.0.10"
+!define PROG_VERSION "4.4.5.10"
 
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_FUNCTION PageFinishRun
 !define MUI_FINISHPAGE_RUN_TEXT $(launch_qbt)
 
-!ifndef APP64BIT
-  ; The name of the installer
-  Name "qBittorrent Enhanced Edition ${PROG_VERSION}"
-
-  ; The file to write
-  OutFile "qbittorrent_enhanced_${PROG_VERSION}_setup.exe"
-!else
+!ifdef APP64BIT
   ; The name of the installer
   Name "qBittorrent Enhanced Edition ${PROG_VERSION} x64"
 
   ; The file to write
   OutFile "qbittorrent_enhanced_${PROG_VERSION}_x64_setup.exe"
+!else ifdef APPQT6
+  ; The name of the installer
+  Name "qBittorrent Enhanced Edition ${PROG_VERSION} x64"
+
+  ; The file to write
+  OutFile "qbittorrent_enhanced_${PROG_VERSION}_Qt6_setup.exe"
+!else
+  ; The name of the installer
+  Name "qBittorrent Enhanced Edition ${PROG_VERSION}"
+
+  ; The file to write
+  OutFile "qbittorrent_enhanced_${PROG_VERSION}_setup.exe"
 !endif
 
 ;Installer Version Information
@@ -55,16 +64,18 @@ VIAddVersionKey "LegalCopyright" "Copyright ©2016-2022 The qBittorrent Enhanced
 VIAddVersionKey "FileDescription" "qBittorrent Enhanced Edition - A Enhanced Client based on qBittorrent"
 VIAddVersionKey "FileVersion" "${PROG_VERSION}"
 
-VIProductVersion "${PROG_VERSION}"
+VIProductVersion "${PROG_VERSION}.0"
 
 ; The default installation directory. It changes depending if we install in the 64bit dir or not.
 ; A caveat of this is if a user has installed a 32bit version and then runs the 64bit installer
 ; (which in turn launches the 32bit uninstaller first) the value will still point to the 32bit location.
 ; The user has to manually uninstall the old version and THEN run the 64bit installer
-!ifndef APP64BIT
-  InstallDir $PROGRAMFILES32\qBittorrent
-!else
+!ifdef APP64BIT
   InstallDir $PROGRAMFILES64\qBittorrent
+!else ifdef APPQT6
+  InstallDir $PROGRAMFILES64\qBittorrent
+!else
+  InstallDir $PROGRAMFILES32\qBittorrent
 !endif
 
 ; Registry key to check for directory (so if you install again, it will
